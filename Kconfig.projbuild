@@ -1,0 +1,146 @@
+menu "TCP/IP Configuration"
+
+choice STATIC_DHCP
+    prompt "Static or DHCP"
+    default CONFIG_STATIC
+
+config DHCP
+    bool "Use DHCP"
+    help
+      Use DHCP server on the network (requires a router).
+
+config STATIC
+    bool "Use a Static IP"
+    help
+      If using a static IP, specify IP address and netmask.
+endchoice
+
+
+menu "Static IP Config"
+    # depends on CONFIG_STATIC_DHCP
+
+config TCPIP_IP
+    string "Static IP"
+    default "192.168.0.10"
+    help
+      Static IP on the network you're connecting to
+
+config TCPIP_NETMASK
+    string "Subnet Mask"
+    default "255.255.255.0"
+    help
+      Subnet Mask for the network
+
+config TCPIP_GW
+    string "Gateway"
+    default ""
+    help
+      Gateway (can usually be left blank)
+endmenu
+
+choice USE_WIFI_ETH
+    prompt "Use WiFi or Ethernet"
+    default CONFIG_WIFI
+
+config WIFI
+    bool "WiFi"
+
+config ETH
+    bool "Ethernet"
+endchoice
+
+menu "Network Config"
+
+config WIFI_SSID
+    string "WiFi SSID"
+    default "mySSID"
+    help
+      SSID (network name) for the example to connect to.
+
+config WIFI_PASSWORD
+    string "WiFi PSWD"
+    default "1234567890"
+    help
+      WiFi password (WPA or WPA2) for the example to use.
+endmenu
+
+
+menu "PHY Config"
+config PHY_ADDRESS
+    int "PHY Address (0-31)"
+    default 0
+    range 0 31
+    help
+        Select the PHY Address (0-31) for the hardware configuration and PHY model.
+        LAN8720 default 1 or 0
+
+
+choice PHY_CLOCK_MODE
+    prompt "EMAC clock mode"
+    default PHY_CLOCK_GPIO0_IN
+    help
+        Select external (input on GPIO0) or internal (output on GPIO0, GPIO16 or GPIO17) clock
+
+
+config PHY_CLOCK_GPIO0_IN
+    bool "GPIO0 input"
+    help
+        Input of 50MHz refclock on GPIO0
+
+config PHY_CLOCK_GPIO0_OUT
+    bool "GPIO0 output"
+    help
+        Output the internal 50MHz APLL clock on GPIO0
+
+config PHY_CLOCK_GPIO16_OUT
+    bool "GPIO16 output"
+    help
+        Output the internal 50MHz APLL clock on GPIO16
+
+config PHY_CLOCK_GPIO17_OUT
+    bool "GPIO17 output (inverted)"
+    help
+        Output the internal 50MHz APLL clock on GPIO17 (inverted signal)
+
+endchoice
+
+config PHY_CLOCK_MODE
+    int
+    default 0 if PHY_CLOCK_GPIO0_IN
+    default 1 if PHY_CLOCK_GPIO0_OUT
+    default 2 if PHY_CLOCK_GPIO16_OUT
+    default 3 if PHY_CLOCK_GPIO17_OUT
+
+
+config PHY_USE_POWER_PIN
+    bool "Use PHY Power (enable/disable) pin"
+    default y
+    help
+        Use a GPIO "power pin" to power the PHY on/off during operation.
+        Consult the example README for more details
+
+config PHY_POWER_PIN
+    int "PHY Power GPIO"
+    default 17
+    range 0 33
+    depends on PHY_USE_POWER_PIN
+    help
+        GPIO number to use for powering on/off the PHY.
+
+config PHY_SMI_MDC_PIN
+    int "SMI MDC Pin"
+    default 23
+    range 0 33
+    help
+        GPIO number to use for SMI clock output MDC to PHY.
+
+config PHY_SMI_MDIO_PIN
+    int "SMI MDIO Pin"
+    default 18
+    range 0 33
+    help
+       GPIO number to use for SMI data pin MDIO to/from PHY.
+
+endmenu
+
+endmenu
