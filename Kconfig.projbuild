@@ -17,7 +17,7 @@ endchoice
 
 
 menu "Static IP Config"
-    # depends on CONFIG_STATIC_DHCP
+    depends on STATIC
 
 config TCPIP_IP
     string "Static IP"
@@ -38,6 +38,7 @@ config TCPIP_GW
       Gateway (can usually be left blank)
 endmenu
 
+
 choice USE_WIFI_ETH
     prompt "Use WiFi or Ethernet"
     default CONFIG_WIFI
@@ -47,9 +48,11 @@ config WIFI
 
 config ETH
     bool "Ethernet"
+
 endchoice
 
-menu "Network Config"
+menu "WiFi Config"
+  depends on WIFI
 
 config WIFI_SSID
     string "WiFi SSID"
@@ -62,6 +65,97 @@ config WIFI_PASSWORD
     default "1234567890"
     help
       WiFi password (WPA or WPA2) for the example to use.
+
+endmenu
+
+
+config AP
+    bool "WiFi Access Point"
+
+menu "Access Point Config"
+  depends on AP
+
+choice
+  prompt "Authentication mode"
+  default WIFI_AUTH_WPA2_PSK
+  help
+    Authentication mode for the Wifi network
+  config WIFI_AUTH_OPEN
+    bool "Open"
+  config WIFI_AUTH_WEP
+    bool "WEP"
+  config WIFI_AUTH_WPA_PSK
+    bool "WPA-PSK"
+  config WIFI_AUTH_WPA2_PSK
+    bool "WPA2-PSK"
+  config WIFI_AUTH_WPA_WPA2_PSK
+    bool "WPA-PSK or WPA2-PSK"
+  config WIFI_AUTH_WPA2_ENTERPRISE
+    bool "WPA2 Enterprise"			
+endchoice
+
+config AP_SSID
+    string "Access Point SSID"
+    default "esp32-SSID"
+    help
+      SSID (network name) for the example to connect to.
+
+config AP_PASSWORD
+    string "Access Point PSWD"
+    default "1234567890"
+    help
+      WiFi password (WPA or WPA2) for the example to use.
+
+menu "AP IP Config"
+    depends on STATIC
+
+config AP_IP
+    string "Static IP"
+    default "192.168.1.1"
+    help
+      Static IP on the network you're connecting to
+
+config AP_GW
+    string "Gateway"
+    default "192.168.1.1"
+    help
+      Gateway (can usually be left blank)
+
+config AP_NETMASK
+    string "Subnet Mask"
+    default "255.255.255.0"
+    help
+      Subnet Mask for the network
+
+endmenu
+
+config AP_CHANNEL
+  int "Wifi channel"
+  default 0
+  help
+    Channel for the Wifi network
+
+
+config AP_HIDE_SSID
+  bool "Hide SSID"
+  default 0
+  help
+    Hide SSID
+
+config AP_MAX_CONNECTIONS
+  int "Maximum concurrent connections"
+  range 1 4
+  default 4
+  help
+    Maximum number of concurrent connections (1-4)
+
+config AP_BEACON_INTERVAL	
+  int "Beacon interval (ms)"
+  range 100 60000
+  default 100
+  help
+    Beacon interval in ms (100-60000)		
+
 endmenu
 
 
@@ -73,43 +167,6 @@ config PHY_ADDRESS
     help
         Select the PHY Address (0-31) for the hardware configuration and PHY model.
         LAN8720 default 1 or 0
-
-
-choice PHY_CLOCK_MODE
-    prompt "EMAC clock mode"
-    default PHY_CLOCK_GPIO0_IN
-    help
-        Select external (input on GPIO0) or internal (output on GPIO0, GPIO16 or GPIO17) clock
-
-
-config PHY_CLOCK_GPIO0_IN
-    bool "GPIO0 input"
-    help
-        Input of 50MHz refclock on GPIO0
-
-config PHY_CLOCK_GPIO0_OUT
-    bool "GPIO0 output"
-    help
-        Output the internal 50MHz APLL clock on GPIO0
-
-config PHY_CLOCK_GPIO16_OUT
-    bool "GPIO16 output"
-    help
-        Output the internal 50MHz APLL clock on GPIO16
-
-config PHY_CLOCK_GPIO17_OUT
-    bool "GPIO17 output (inverted)"
-    help
-        Output the internal 50MHz APLL clock on GPIO17 (inverted signal)
-
-endchoice
-
-config PHY_CLOCK_MODE
-    int
-    default 0 if PHY_CLOCK_GPIO0_IN
-    default 1 if PHY_CLOCK_GPIO0_OUT
-    default 2 if PHY_CLOCK_GPIO16_OUT
-    default 3 if PHY_CLOCK_GPIO17_OUT
 
 
 config PHY_USE_POWER_PIN
@@ -128,19 +185,18 @@ config PHY_POWER_PIN
         GPIO number to use for powering on/off the PHY.
 
 config PHY_SMI_MDC_PIN
-    int "SMI MDC Pin"
+    int "SMI MDC PIN"
     default 23
     range 0 33
     help
-        GPIO number to use for SMI clock output MDC to PHY.
+        GPIO number to use for MDC.
 
 config PHY_SMI_MDIO_PIN
-    int "SMI MDIO Pin"
-    default 18
+    int "SMI MDIO PIN"
+    default 32  
     range 0 33
     help
-       GPIO number to use for SMI data pin MDIO to/from PHY.
-
+        GPIO number to use for MDIO.
 endmenu
 
 endmenu
